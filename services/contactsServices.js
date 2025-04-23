@@ -1,17 +1,19 @@
 import { Contact } from "../db/models/index.js";
 
-const listContacts = async () => {
-  const contacts = await Contact.findAll();
+const listContacts = async (user) => {
+  const contacts = await Contact.findAll({ where: { ownerId: user.id } });
   return contacts;
 };
 
-const getContactById = async (contactId) => {
-  const contact = await Contact.findOne({ where: { id: contactId } });
+const getContactById = async (contactId, user) => {
+  const contact = await Contact.findOne({
+    where: { id: contactId, ownerId: user.id },
+  });
   return contact;
 };
 
-const removeContact = async (contactId) => {
-  const contact = await Contact.findOne({ where: { id: contactId } });
+const removeContact = async (contactId, user) => {
+  const contact = await getContactById(contactId, user);
 
   if (!contact) return null;
 
@@ -20,19 +22,24 @@ const removeContact = async (contactId) => {
   return contact;
 };
 
-const addContact = async (name, email, phone) => {
-  const newContact = await Contact.create({ name, email, phone });
+const addContact = async (name, email, phone, user) => {
+  const newContact = await Contact.create({
+    name,
+    email,
+    phone,
+    ownerId: user.id,
+  });
   return newContact;
 };
 
-const updateContact = async (contactId, body) => {
-  await Contact.update(body, { where: { id: contactId } });
-  const contact = await getContactById(contactId);
+const updateContact = async (contactId, body, user) => {
+  await Contact.update(body, { where: { id: contactId, ownerId: user.id } });
+  const contact = await getContactById(contactId, user);
   return contact;
 };
 
-const updateStatusContact = async (contactId, body) => {
-  const contact = await updateContact(contactId, body);
+const updateStatusContact = async (contactId, body, user) => {
+  const contact = await updateContact(contactId, body, user);
   return contact;
 };
 
