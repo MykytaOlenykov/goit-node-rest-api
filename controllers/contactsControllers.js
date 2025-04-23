@@ -3,8 +3,11 @@ import { HttpError } from "../helpers/HttpError.js";
 import { ctrlWrapper } from "../helpers/ctrlWrapper.js";
 
 const getAllContacts = async (req, res) => {
-  const contacts = await contactsService.listContacts(req.user);
-  res.status(200).json({ data: { contacts } });
+  const { contacts, total } = await contactsService.listContacts(
+    req.query,
+    req.user
+  );
+  res.status(200).json({ data: { contacts, total } });
 };
 
 const getOneContact = async (req, res) => {

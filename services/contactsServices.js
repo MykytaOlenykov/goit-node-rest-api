@@ -1,8 +1,20 @@
 import { Contact } from "../db/models/index.js";
+import { getOffset } from "../helpers/getOffset.js";
 
-const listContacts = async (user) => {
-  const contacts = await Contact.findAll({ where: { ownerId: user.id } });
-  return contacts;
+const listContacts = async (query, user) => {
+  const { page = 1, limit = 100, favorite } = query;
+
+  const { rows, count } = await Contact.findAndCountAll({
+    where: {
+      ownerId: user.id,
+      ...(typeof favorite === "boolean" ? { favorite } : {}),
+    },
+    limit: limit,
+    offset: getOffset(page, limit),
+    order: [["id", "DESC"]],
+  });
+
+  return { contacts: rows, total: count };
 };
 
 const getContactById = async (contactId, user) => {

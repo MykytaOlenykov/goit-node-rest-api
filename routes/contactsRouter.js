@@ -7,11 +7,18 @@ import {
   createContactSchema,
   updateContactSchema,
   updateContactStatusSchema,
+  getContactsQueryStringSchema,
 } from "../schemas/contactsSchemas.js";
+import { validateQueryString } from "../helpers/validateQuerystring.js";
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", authenticate, contactsControllers.getAllContacts);
+contactsRouter.get(
+  "/",
+  authenticate,
+  validateQueryString(getContactsQueryStringSchema),
+  contactsControllers.getAllContacts
+);
 
 contactsRouter.get("/:id", authenticate, contactsControllers.getOneContact);
 
