@@ -40,10 +40,23 @@ const updateContact = async (req, res) => {
   res.status(200).json({ data: { contact } });
 };
 
+const updateStatusContact = async (req, res) => {
+  const { contactId } = req.params;
+  const contact = await contactsService.updateStatusContact(
+    contactId,
+    req.body
+  );
+
+  if (!contact) throw HttpError(404);
+
+  res.status(200).json({ data: { contact } });
+};
+
 export const contactsControllers = {
   getAllContacts: ctrlWrapper(getAllContacts),
   getOneContact: ctrlWrapper(getOneContact),
   deleteContact: ctrlWrapper(deleteContact),
   createContact: ctrlWrapper(createContact),
   updateContact: ctrlWrapper(updateContact),
+  updateStatusContact: ctrlWrapper(updateStatusContact),
 };
