@@ -1,54 +1,39 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-
-import { nanoid } from "nanoid";
-
-const contactsPath = path.resolve("db", "contacts.json");
+import { Contact } from "../db/models.js";
 
 const listContacts = async () => {
-  const contacts = await fs.readFile(contactsPath);
-  return JSON.parse(contacts);
+  const contacts = await Contact.findAll();
+  return contacts;
 };
 
 const getContactById = async (contactId) => {
-  const contacts = await listContacts();
-  const result = contacts.find((contact) => contact.id === contactId);
-  return result || null;
+  const contact = await Contact.findOne({ where: { id: contactId } });
+  return contact;
 };
 
 const removeContact = async (contactId) => {
-  const contacts = await listContacts();
-  const idx = contacts.findIndex((contact) => contact.id === contactId);
-  if (idx === -1) {
-    return null;
-  }
-  const [result] = contacts.splice(idx, 1);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return result;
+  const contact = await Contact.findOne({ where: { id: contactId } });
+
+  if (!contact) return null;
+
+  await Contact.destroy({ where: { id: contactId } });
+
+  return contact;
 };
 
 const addContact = async (name, email, phone) => {
-  const contacts = await listContacts();
-  const newContact = {
-    id: nanoid(),
-    name,
-    email,
-    phone,
-  };
-  contacts.push(newContact);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+  const newContact = await Contact.create({ name, email, phone });
   return newContact;
 };
 
 const updateContact = async (contactId, body) => {
-  const contacts = await listContacts();
-  const idx = contacts.findIndex((contact) => contact.id === contactId);
-  if (idx === -1) {
-    return null;
-  }
-  contacts[idx] = { ...contacts[idx], ...body };
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return contacts[idx];
+  await Contact.update(body, { where: { id: contactId } });
+  const contact = await getContactById(contactId);
+  return contact;
+};
+
+const updateStatusContact = async (contactId, body) => {
+  const contact = await updateContact(contactId, body);
+  return contact;
 };
 
 export const contactsService = {
@@ -57,4 +42,5 @@ export const contactsService = {
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 };
