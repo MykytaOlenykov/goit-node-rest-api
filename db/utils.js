@@ -26,8 +26,8 @@ const seedContacts = async (ownerId) => {
 export const syncSequelize = async () => {
   if (settings.env !== "development") return;
 
-  // await sequelize.sync({ force: true });
+  await sequelize.sync({ force: true });
 
-  // const user = await seedUser();
-  // await seedContacts(user.id);
+  const user = await seedUser();
+  await seedContacts(user.id);
 };
