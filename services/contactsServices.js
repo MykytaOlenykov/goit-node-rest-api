@@ -1,4 +1,4 @@
-import { Contact } from "../db/models.js";
+import { Contact } from "../db/models/index.js";
 
 const listContacts = async () => {
   const contacts = await Contact.findAll();

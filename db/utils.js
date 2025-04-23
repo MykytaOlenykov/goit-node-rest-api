@@ -2,18 +2,32 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { sequelize } from "./sequelize.js";
-import { Contact } from "./models.js";
+import { User, Contact } from "./models/index.js";
+import { hashSecret } from "../helpers/hashing.js";
 import { settings } from "../settings.js";
 
 const contactsPath = path.resolve("db", "contacts.json");
 
-const seedContacts = async () => {
+const seedUser = async () => {
+  const password = await hashSecret("123456");
+  const user = { email: "mango@gmail.com", password };
+  return await User.create(user);
+};
+
+const seedContacts = async (ownerId) => {
   const contacts = await fs.readFile(contactsPath);
-  await Contact.bulkCreate(JSON.parse(contacts));
+  const preparedContacts = JSON.parse(contacts).map((contact) => ({
+    ...contact,
+    ownerId,
+  }));
+  await Contact.bulkCreate(preparedContacts);
 };
 
 export const syncSequelize = async () => {
   if (settings.env !== "development") return;
-  await sequelize.sync({ force: true });
-  await seedContacts();
+
+  // await sequelize.sync({ force: true });
+
+  // const user = await seedUser();
+  // await seedContacts(user.id);
 };
