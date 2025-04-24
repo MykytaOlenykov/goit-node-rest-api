@@ -1,4 +1,4 @@
-import { Contact, User } from "../db/models/index.js";
+import { Contact } from "../db/models/index.js";
 import { getOffset } from "../helpers/getOffset.js";
 
 const listContacts = async (query, user) => {
