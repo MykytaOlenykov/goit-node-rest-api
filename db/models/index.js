@@ -2,8 +2,7 @@ import { Contact } from "./contacts.js";
 import { User } from "./users.js";
 
 Contact.belongsTo(User, {
-  foreignKey: "ownerId",
-  as: "owner",
+  foreignKey: "owner",
   onDelete: "CASCADE",
 });
 

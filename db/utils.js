@@ -18,7 +18,7 @@ const seedContacts = async (ownerId) => {
   const contacts = await fs.readFile(contactsPath);
   const preparedContacts = JSON.parse(contacts).map((contact) => ({
     ...contact,
-    ownerId,
+    owner: ownerId,
   }));
   await Contact.bulkCreate(preparedContacts);
 };

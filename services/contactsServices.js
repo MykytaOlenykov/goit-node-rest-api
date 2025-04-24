@@ -1,4 +1,4 @@
-import { Contact } from "../db/models/index.js";
+import { Contact, User } from "../db/models/index.js";
 import { getOffset } from "../helpers/getOffset.js";
 
 const listContacts = async (query, user) => {
@@ -6,7 +6,7 @@ const listContacts = async (query, user) => {
 
   const { rows, count } = await Contact.findAndCountAll({
     where: {
-      ownerId: user.id,
+      owner: user.id,
       ...(typeof favorite === "boolean" ? { favorite } : {}),
     },
     limit: limit,
@@ -19,7 +19,7 @@ const listContacts = async (query, user) => {
 
 const getContactById = async (contactId, user) => {
   const contact = await Contact.findOne({
-    where: { id: contactId, ownerId: user.id },
+    where: { id: contactId, owner: user.id },
   });
   return contact;
 };
@@ -39,13 +39,13 @@ const addContact = async (name, email, phone, user) => {
     name,
     email,
     phone,
-    ownerId: user.id,
+    owner: user.id,
   });
   return newContact;
 };
 
 const updateContact = async (contactId, body, user) => {
-  await Contact.update(body, { where: { id: contactId, ownerId: user.id } });
+  await Contact.update(body, { where: { id: contactId, owner: user.id } });
   const contact = await getContactById(contactId, user);
   return contact;
 };

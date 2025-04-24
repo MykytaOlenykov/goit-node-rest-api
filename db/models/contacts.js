@@ -26,7 +26,7 @@ export const Contact = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    ownerId: {
+    owner: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
