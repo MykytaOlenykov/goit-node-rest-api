@@ -55,7 +55,7 @@ const logout = async (user) => {
   await User.update({ token: null }, { where: { id: user.id } });
 };
 
-export const authService = {
+export const authServices = {
   register,
   login,
   logout,

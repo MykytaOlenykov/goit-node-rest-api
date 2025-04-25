@@ -11,6 +11,6 @@ const changeSubscription = async (body, user) => {
   };
 };
 
-export const usersService = {
+export const usersServices = {
   changeSubscription,
 };
