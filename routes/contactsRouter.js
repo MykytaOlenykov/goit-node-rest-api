@@ -9,7 +9,7 @@ import {
   updateContactStatusSchema,
   getContactsQueryStringSchema,
 } from "../schemas/contactsSchemas.js";
-import { validateQueryString } from "../helpers/validateQuerystring.js";
+import { validateQueryString } from "../helpers/validateQueryString.js";
 
 const contactsRouter = express.Router();
 
