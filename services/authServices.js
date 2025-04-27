@@ -1,3 +1,5 @@
+import gravatar from "gravatar";
+
 import { User } from "../db/models/index.js";
 import { HttpError } from "../helpers/HttpError.js";
 import { hashSecret, verifySecret } from "../helpers/hashing.js";
@@ -14,7 +16,13 @@ const register = async (body) => {
 
   const hashPassword = await hashSecret(password);
 
-  const newUser = await User.create({ ...body, password: hashPassword });
+  const avatarURL = gravatar.url(email, { s: "200" }, true);
+
+  const newUser = await User.create({
+    ...body,
+    password: hashPassword,
+    avatarURL,
+  });
 
   return {
     email: newUser.email,

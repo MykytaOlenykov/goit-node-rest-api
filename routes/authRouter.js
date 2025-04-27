@@ -4,6 +4,7 @@ import { authControllers } from "../controllers/authControllers.js";
 import { usersControllers } from "../controllers/usersControllers.js";
 import { validateBody } from "../helpers/validateBody.js";
 import { authenticate } from "../helpers/authenticate.js";
+import { imageUpload } from "../helpers/imageUpload.js";
 import { registerSchema, loginSchema } from "../schemas/authSchemas.js";
 import { changeSubscriptionSchema } from "../schemas/usersSchemas.js";
 
@@ -26,6 +27,13 @@ authRouter.patch(
   authenticate,
   validateBody(changeSubscriptionSchema),
   usersControllers.changeSubscription
+);
+
+authRouter.patch(
+  "/avatars",
+  authenticate,
+  imageUpload.single("avatar"),
+  usersControllers.updateAvatar
 );
 
 export default authRouter;
