@@ -20,6 +20,7 @@ const current = (req, res) => {
   const user = {
     email: req.user.email,
     subscription: req.user.subscription,
+    avatarURL: req.user.avatarURL,
   };
   res.status(200).json({ data: { user } });
 };
