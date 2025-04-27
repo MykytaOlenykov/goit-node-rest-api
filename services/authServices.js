@@ -1,9 +1,12 @@
 import gravatar from "gravatar";
+import { v4 as uuidv4 } from "uuid";
 
 import { User } from "../db/models/index.js";
+import { emailsServices } from "./emailsServices.js";
 import { HttpError } from "../helpers/HttpError.js";
 import { hashSecret, verifySecret } from "../helpers/hashing.js";
 import { jwt } from "../helpers/jwt.js";
+import { settings } from "../settings.js";
 
 const register = async (body) => {
   const { email, password } = body;
@@ -18,11 +21,18 @@ const register = async (body) => {
 
   const avatarURL = gravatar.url(email, { s: "200" }, true);
 
+  const verificationToken = uuidv4();
+
   const newUser = await User.create({
     ...body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
+
+  const verificationURL = `${settings.baseUrl}/api/auth/verify/${verificationToken}`;
+
+  await emailsServices.sendVerificationEmail(email, verificationURL);
 
   return {
     email: newUser.email,

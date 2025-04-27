@@ -13,6 +13,14 @@ export const settings = {
 
   env: process.env.NODE_ENV || "development",
   tokenSecret: process.env.TOKEN_SECRET,
+
+  emailHostUser: process.env.EMAIL_HOST_USER,
+  emailHostPassword: process.env.EMAIL_HOST_PASSWORD,
+  emailHost: process.env.EMAIL_HOST,
+  emailPort: process.env.EMAIL_PORT,
+
+  port: process.env.PORT,
+  baseUrl: process.env.BASE_URL,
 };
 
 const validateSettings = () => {
