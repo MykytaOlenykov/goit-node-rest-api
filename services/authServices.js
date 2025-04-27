@@ -8,6 +8,9 @@ import { hashSecret, verifySecret } from "../helpers/hashing.js";
 import { jwt } from "../helpers/jwt.js";
 import { settings } from "../settings.js";
 
+const createVerificationURL = (token) =>
+  `${settings.baseUrl}/api/auth/verify/${token}`;
+
 const register = async (body) => {
   const { email, password } = body;
 
@@ -30,7 +33,7 @@ const register = async (body) => {
     verificationToken,
   });
 
-  const verificationURL = `${settings.baseUrl}/api/auth/verify/${verificationToken}`;
+  const verificationURL = createVerificationURL(verificationToken);
 
   await emailsServices.sendVerificationEmail(email, verificationURL);
 
@@ -89,9 +92,29 @@ const verifyEmail = async (verificationToken) => {
   return { message: "Verification successful" };
 };
 
+const resendVerificationEmail = async (body) => {
+  const { email } = body;
+  const user = await User.findOne({ where: { email } });
+
+  if (!user) {
+    throw HttpError(404, "Email not found");
+  }
+
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  const verificationURL = createVerificationURL(user.verificationToken);
+
+  await emailsServices.sendVerificationEmail(email, verificationURL);
+
+  return { message: "Verification email sent" };
+};
+
 export const authServices = {
   register,
   login,
   logout,
   verifyEmail,
+  resendVerificationEmail,
 };

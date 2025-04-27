@@ -31,10 +31,16 @@ const verifyEmail = async (req, res) => {
   res.status(200).json({ data: { message } });
 };
 
+const resendVerificationEmail = async (req, res) => {
+  const { message } = await authServices.resendVerificationEmail(req.body);
+  res.status(200).json({ data: { message } });
+};
+
 export const authControllers = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
   current: ctrlWrapper(current),
   verifyEmail: ctrlWrapper(verifyEmail),
+  resendVerificationEmail: ctrlWrapper(resendVerificationEmail),
 };
