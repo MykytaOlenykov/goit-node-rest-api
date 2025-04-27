@@ -6,6 +6,7 @@ import contactsRouter from "./routes/contactsRouter.js";
 import authRouter from "./routes/authRouter.js";
 import { sequelize, verifySequelizeConnection } from "./db/sequelize.js";
 import { syncSequelize } from "./db/utils.js";
+import { settings } from "./settings.js";
 
 const app = express();
 
@@ -31,9 +32,10 @@ app.use((err, _, res, __) => {
     await verifySequelizeConnection();
     await syncSequelize();
 
-    app.listen(3000);
+    const port = settings.port ?? 3000;
+    app.listen(port);
 
-    console.log("Server is running. Use our API on port: 3000");
+    console.log(`Server is running. Use our API on port: ${port}`);
   } catch (error) {
     await sequelize.close();
     console.log(error);

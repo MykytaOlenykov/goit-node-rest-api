@@ -13,6 +13,8 @@ const changeSubscription = async (body, user) => {
 };
 
 const updateAvatar = async (file, user) => {
+  if (!file) throw HttpError(400, "avatar is required");
+
   const { avatarURL: prevAvatarURL } = user;
 
   const avatarURL = await filesServices.processAvatar(file);

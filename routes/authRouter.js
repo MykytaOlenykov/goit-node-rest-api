@@ -5,7 +5,11 @@ import { usersControllers } from "../controllers/usersControllers.js";
 import { validateBody } from "../helpers/validateBody.js";
 import { authenticate } from "../helpers/authenticate.js";
 import { imageUpload } from "../helpers/imageUpload.js";
-import { registerSchema, loginSchema } from "../schemas/authSchemas.js";
+import {
+  registerSchema,
+  loginSchema,
+  resendVerificationEmailSchema,
+} from "../schemas/authSchemas.js";
 import { changeSubscriptionSchema } from "../schemas/usersSchemas.js";
 
 const authRouter = express.Router();
@@ -34,6 +38,14 @@ authRouter.patch(
   authenticate,
   imageUpload.single("avatar"),
   usersControllers.updateAvatar
+);
+
+authRouter.get("/verify/:verificationToken", authControllers.verifyEmail);
+
+authRouter.post(
+  "/verify",
+  validateBody(resendVerificationEmailSchema),
+  authControllers.resendVerificationEmail
 );
 
 export default authRouter;

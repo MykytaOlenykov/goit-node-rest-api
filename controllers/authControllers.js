@@ -20,8 +20,20 @@ const current = (req, res) => {
   const user = {
     email: req.user.email,
     subscription: req.user.subscription,
+    avatarURL: req.user.avatarURL,
   };
   res.status(200).json({ data: { user } });
+};
+
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+  const { message } = await authServices.verifyEmail(verificationToken);
+  res.status(200).json({ data: { message } });
+};
+
+const resendVerificationEmail = async (req, res) => {
+  const { message } = await authServices.resendVerificationEmail(req.body);
+  res.status(200).json({ data: { message } });
 };
 
 export const authControllers = {
@@ -29,4 +41,6 @@ export const authControllers = {
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
   current: ctrlWrapper(current),
+  verifyEmail: ctrlWrapper(verifyEmail),
+  resendVerificationEmail: ctrlWrapper(resendVerificationEmail),
 };

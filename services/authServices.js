@@ -1,9 +1,15 @@
 import gravatar from "gravatar";
+import { v4 as uuidv4 } from "uuid";
 
 import { User } from "../db/models/index.js";
+import { emailsServices } from "./emailsServices.js";
 import { HttpError } from "../helpers/HttpError.js";
 import { hashSecret, verifySecret } from "../helpers/hashing.js";
 import { jwt } from "../helpers/jwt.js";
+import { settings } from "../settings.js";
+
+const createVerificationURL = (token) =>
+  `${settings.baseUrl}/api/auth/verify/${token}`;
 
 const register = async (body) => {
   const { email, password } = body;
@@ -18,11 +24,18 @@ const register = async (body) => {
 
   const avatarURL = gravatar.url(email, { s: "200" }, true);
 
+  const verificationToken = uuidv4();
+
   const newUser = await User.create({
     ...body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
+
+  const verificationURL = createVerificationURL(verificationToken);
+
+  await emailsServices.sendVerificationEmail(email, verificationURL);
 
   return {
     email: newUser.email,
@@ -39,6 +52,10 @@ const login = async (body) => {
     throw HttpError(401, "Email or password is wrong");
   }
 
+  if (!user.verify) {
+    throw HttpError(401, "Email not verified");
+  }
+
   const passwordCompare = await verifySecret(password, user.password);
 
   if (!passwordCompare) {
@@ -48,7 +65,7 @@ const login = async (body) => {
   const payload = { id: user.id };
   const token = jwt.sign(payload, { expiresIn: "9h" });
 
-  await User.update({ token }, { where: { id: user.id } });
+  await user.update({ token });
 
   return {
     token,
@@ -63,8 +80,41 @@ const logout = async (user) => {
   await User.update({ token: null }, { where: { id: user.id } });
 };
 
+const verifyEmail = async (verificationToken) => {
+  const user = await User.findOne({ where: { verificationToken } });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  await user.update({ verificationToken: null, verify: true });
+
+  return { message: "Verification successful" };
+};
+
+const resendVerificationEmail = async (body) => {
+  const { email } = body;
+  const user = await User.findOne({ where: { email } });
+
+  if (!user) {
+    throw HttpError(404, "Email not found");
+  }
+
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  const verificationURL = createVerificationURL(user.verificationToken);
+
+  await emailsServices.sendVerificationEmail(email, verificationURL);
+
+  return { message: "Verification email sent" };
+};
+
 export const authServices = {
   register,
   login,
   logout,
+  verifyEmail,
+  resendVerificationEmail,
 };
