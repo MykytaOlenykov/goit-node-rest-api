@@ -49,6 +49,10 @@ const login = async (body) => {
     throw HttpError(401, "Email or password is wrong");
   }
 
+  if (!user.verify) {
+    throw HttpError(401, "Email not verified");
+  }
+
   const passwordCompare = await verifySecret(password, user.password);
 
   if (!passwordCompare) {
@@ -58,7 +62,7 @@ const login = async (body) => {
   const payload = { id: user.id };
   const token = jwt.sign(payload, { expiresIn: "9h" });
 
-  await User.update({ token }, { where: { id: user.id } });
+  await user.update({ token });
 
   return {
     token,
@@ -73,8 +77,21 @@ const logout = async (user) => {
   await User.update({ token: null }, { where: { id: user.id } });
 };
 
+const verifyEmail = async (verificationToken) => {
+  const user = await User.findOne({ where: { verificationToken } });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  await user.update({ verificationToken: null, verify: true });
+
+  return { message: "Verification successful" };
+};
+
 export const authServices = {
   register,
   login,
   logout,
+  verifyEmail,
 };

@@ -25,9 +25,16 @@ const current = (req, res) => {
   res.status(200).json({ data: { user } });
 };
 
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+  const { message } = await authServices.verifyEmail(verificationToken);
+  res.status(200).json({ data: { message } });
+};
+
 export const authControllers = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
   current: ctrlWrapper(current),
+  verifyEmail: ctrlWrapper(verifyEmail),
 };
